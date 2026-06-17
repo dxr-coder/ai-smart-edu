@@ -2,13 +2,13 @@
 
 基于知识图谱 + 大模型的智能教育问答系统，支持课程查询、知识点抽取、知识关系推理等功能。
 
+> 本项目为 **尚硅谷大模型项目实战** 系列课程项目，完整实现了从知识图谱构建到智能问答的全流程。截图展示了实际运行效果。
+
 ## 截图
 
 | 智能问答界面 | 知识图谱可视化 |
 |---|---|
 | ![chat](screenshots/chat.png) | ![neo4j](screenshots/neo4j.png) |
-
-> TODO: 请将页面截图保存至 `screenshots/` 目录
 
 ## 功能展示
 
@@ -70,8 +70,22 @@ pip install -r requirements.txt
 # 导入 MySQL 数据
 mysql -u root -p < data/edu.sql
 
-# 同步数据到 Neo4j
-python src/datasync/data_prepare.py
+# 同步基础数据到 Neo4j
+python -c "
+from src.datasync.data_prepare import *
+sync_categories()
+sync_subjects()
+sync_courses()
+sync_chapters()
+sync_videos()
+sync_paper()
+sync_question()
+sync_teachers()
+sync_prices()
+"
+
+# 抽取知识点并写入 Neo4j（需微调后的 UIE 模型）
+python src/entity_extraction/extractor.py
 ```
 
 ### 4. 配置环境变量
@@ -101,26 +115,33 @@ docker-compose up -d
 ```
 ai-smart-edu/
 ├── src/
-│   ├── backend/           # Web 服务
-│   │   ├── app.py         # FastAPI 入口
-│   │   ├── chat_service.py# 对话服务（DeepSeek 函数调用）
-│   │   └── templates/     # 前端页面
-│   ├── agent/             # 大模型 Agent
-│   │   ├── prompts.py     # 系统提示词
-│   │   └── tools_def.py   # 工具定义
-│   ├── entity_extraction/ # 知识点抽取（UIE）
-│   │   ├── extractor.py   # 抽取接口
-│   │   ├── trainer.py     # 训练脚本
-│   │   └── train.py       # 训练入口
-│   ├── datasync/          # 数据同步
-│   │   ├── db_utils.py    # 数据库连接
-│   │   └── data_prepare.py# 同步脚本
-│   └── configuration/     # 配置
-├── data/edu.sql           # MySQL 数据库脚本
-├── uie_pytorch/           # UIE 模型框架
-├── finetuned/             # 微调模型权重
-├── docker-compose.yml     # Docker 编排
-└── Dockerfile             # 应用容器
+│   ├── backend/            # Web 服务
+│   │   ├── app.py          # FastAPI 入口
+│   │   ├── chat_service.py # 对话服务（DeepSeek 函数调用）
+│   │   └── templates/      # 前端页面
+│   ├── agent/              # 大模型 Agent
+│   │   ├── prompts.py      # 系统提示词
+│   │   └── tools_def.py    # 工具定义
+│   ├── entity_extraction/  # 知识点抽取（UIE）
+│   │   ├── extractor.py    # 抽取接口
+│   │   ├── trainer.py      # 训练脚本
+│   │   └── train.py        # 训练入口
+│   ├── datasync/           # 数据同步
+│   │   ├── db_utils.py     # 数据库连接
+│   │   └── data_prepare.py # 15个 sync 同步脚本
+│   └── configuration/      # 配置
+├── screenshots/            # 项目截图
+│   ├── chat.png
+│   └── neo4j.png
+├── data/edu.sql            # MySQL 数据库脚本
+├── uie_pytorch/            # UIE 模型框架
+├── finetuned/              # 微调模型权重
+├── requirements.txt
+├── .env                    # API Key 配置
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
 ```
 
 ## 核心流程
@@ -137,7 +158,3 @@ ai-smart-edu/
 2. DeepSeek 理解问题意图，生成 Cypher 查询语句
 3. 执行 Cypher 查询 Neo4j 图数据库
 4. DeepSeek 将查询结果整理为自然语言回答
-
-## 许可证
-
-MIT License
