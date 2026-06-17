@@ -1,0 +1,10 @@
+.env
+.idea
+__pycache__
+*.pyc
+.git
+*.md
+.vscode
+data/processed
+doccano_ext.jsonl
+知识点.json

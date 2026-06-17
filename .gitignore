@@ -1,0 +1,27 @@
+# 环境
+.env
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 大文件/模型权重
+uie_pytorch/uie_base_pytorch/pytorch_model.bin
+uie_pytorch/uie_base_pytorch/*.safetensors
+finetuned/checkpoint/*/model.safetensors
+finetuned/checkpoint/*/pytorch_model.bin
+
+# 标注数据
+知识点.json
+doccano_ext.jsonl
+
+# 训练中间产物
+data/processed/course/sample_index.json
